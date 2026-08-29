@@ -1,10 +1,10 @@
-# 📜 Contrato da API REST - Royal Enfield
+# Contrato da API REST - Royal Enfield
 
-Este documento especifica o contrato completo de integração com os endpoints REST da **API Royal Enfield**, contendo rotas, métodos HTTP, parâmetros, formatos de payload (JSON e Multipart), respostas de sucesso e respostas de erro.
+Este documento especifica o contrato completo de integração com os endpoints REST da API Royal Enfield, contendo rotas, métodos HTTP, parâmetros, formatos de payload (JSON e Multipart), respostas de sucesso e respostas de erro.
 
 ---
 
-## 🌐 Informações Gerais
+## Informações Gerais
 * **Base URL**: `http://localhost:8080`
 * **API Prefix**: `/api/v1`
 * **Arquivos Estáticos (Uploads)**: `http://localhost:8080/uploads/**`
@@ -13,7 +13,7 @@ Este documento especifica o contrato completo de integração com os endpoints R
 
 ---
 
-## 🚨 Padrão de Respostas de Erro (RFC 7807 - ProblemDetail)
+## Padrão de Respostas de Erro (RFC 7807 - ProblemDetail)
 
 Todas as respostas de erro seguem o padrão RFC 7807 (`application/problem+json`).
 
@@ -46,7 +46,19 @@ Todas as respostas de erro seguem o padrão RFC 7807 (`application/problem+json`
 }
 ```
 
-### 3. Erro de Armazenamento / Tipo de Arquivo Inválido (400 Bad Request)
+### 3. Erro de Método Não Permitido (405 Method Not Allowed)
+```json
+{
+  "type": "https://api.royalenfield.com/errors/method-not-allowed",
+  "title": "Method Not Allowed",
+  "status": 405,
+  "detail": "Request method 'PUT' is not supported for this endpoint. Supported methods: [POST, GET]",
+  "instance": "/api/v1/motorcycles/ad7f150a-516c-49d2-b72c-53d077045994/gallery",
+  "timestamp": "2026-08-28T20:27:24.258Z"
+}
+```
+
+### 4. Erro de Armazenamento / Tipo de Arquivo Inválido (400 Bad Request)
 ```json
 {
   "type": "https://api.royalenfield.com/errors/file-storage",
@@ -60,7 +72,7 @@ Todas as respostas de erro seguem o padrão RFC 7807 (`application/problem+json`
 
 ---
 
-## 🏍️ 1. Módulo de Motocicletas (`/api/v1/motorcycles`)
+## 1. Módulo de Motocicletas (/api/v1/motorcycles)
 
 ### 1.1. Criar Motocicleta
 * **Método**: `POST`
@@ -296,7 +308,7 @@ Retorna a motocicleta com sua ficha técnica completa, array de variantes e arra
 
 ---
 
-## ⚙️ 2. Módulo de Ficha Técnica (`/api/v1/motorcycles/{motorcycleId}/technical-spec`)
+## 2. Módulo de Ficha Técnica (/api/v1/motorcycles/{motorcycleId}/technical-spec)
 
 ### 2.1. Obter Ficha Técnica
 * **Método**: `GET`
@@ -354,7 +366,7 @@ Retorna a motocicleta com sua ficha técnica completa, array de variantes e arra
 
 ---
 
-## 🎨 3. Módulo de Variantes e Cores (`/api/v1`)
+## 3. Módulo de Variantes e Cores (/api/v1)
 
 ### 3.1. Criar Variante via JSON (Sem Upload Imediato)
 * **Método**: `POST`
@@ -393,7 +405,7 @@ Retorna a motocicleta com sua ficha técnica completa, array de variantes e arra
 
 ---
 
-### 3.2. Criar Variante com Upload de Imagem (`multipart/form-data`)
+### 3.2. Criar Variante com Upload de Imagem (multipart/form-data)
 * **Método**: `POST`
 * **Rota**: `/api/v1/motorcycles/{motorcycleId}/variants`
 * **Headers**: `Content-Type: multipart/form-data`
@@ -446,7 +458,7 @@ Retorna a motocicleta com sua ficha técnica completa, array de variantes e arra
 ---
 
 ### 3.6. Fazer Upload/Substituição de Imagem da Variante
-* **Método**: `POST`
+* **Método**: `POST` ou `PUT`
 * **Rota**: `/api/v1/variants/{id}/image`
 * **Headers**: `Content-Type: multipart/form-data`
 * **Form Params**:
@@ -468,7 +480,7 @@ Retorna a motocicleta com sua ficha técnica completa, array de variantes e arra
 
 ---
 
-## 📸 4. Módulo de Galeria (`/api/v1`)
+## 4. Módulo de Galeria (/api/v1)
 
 ### 4.1. Adicionar Imagem na Galeria via Upload Físico
 * **Método**: `POST`
@@ -555,7 +567,7 @@ Retorna a lista de itens da galeria ordenada ascendentemente por `displayOrder`.
 
 ---
 
-## 💡 Exemplos Rápidos com cURL
+## Exemplos Rápidos com cURL
 
 ### 1. Criar Moto com Ficha Técnica:
 ```bash
