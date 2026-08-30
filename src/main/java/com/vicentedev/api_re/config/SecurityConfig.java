@@ -22,12 +22,17 @@ public class SecurityConfig {
     @org.springframework.beans.factory.annotation.Value("${security.admin.password:admin123}")
     private String adminPassword;
 
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:https://royalenfield.vicentedeveloper.com,http://localhost:3000,http://localhost:5173}")
+    private String allowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(org.springframework.security.config.Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers("/error").permitAll()
@@ -39,6 +44,20 @@ public class SecurityConfig {
                 .httpBasic(org.springframework.security.config.Customizer.withDefaults());
 
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        java.util.List<String> origins = java.util.Arrays.asList(allowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setExposedHeaders(java.util.List.of("*"));
+        configuration.setAllowCredentials(true);
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
