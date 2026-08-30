@@ -2,7 +2,12 @@
 
 API REST desenvolvida em Java 21 e Spring Boot para o ecossistema digital da marca Royal Enfield. O projeto provê gerenciamento completo de catálogo de motocicletas, versões/variantes de acabamento, galeria de imagens para carrossel, especificações técnicas detalhadas, rede de concessionárias, agendamentos de test ride e controle de acesso com perfis de usuários.
 
-A documentação detalhada dos endpoints, estruturas de requisição, exemplos com cURL e formatos de resposta está disponível no [Contrato da API](contract.md).
+A documentação detalhada dos endpoints, estruturas de requisição, exemplos com cURL e formatos de resposta está disponível no meu GitHub em [Contrato da API](https://github.com/VicenteAlef/api-royal-enfield-spring-boot/blob/main/contract.md).
+
+* Aplicação online: [royalenfield.vicentedeveloper.com](https://royalenfield.vicentedeveloper.com/)
+* Repositório da API (Spring Boot): [api-royal-enfield-spring-boot](https://github.com/VicenteAlef/api-royal-enfield-spring-boot)
+* Repositório do Front-end/Protótipo (React.js): [royal-enfield-react-app-prototype](https://github.com/VicenteAlef/royal-enfield-react-app-prototype)
+* Teste de API: [api-re.vicentedeveloper.com.br](https://api-re.vicentedeveloper.com.br/api/v1/motorcycles)
 
 ---
 
@@ -17,6 +22,8 @@ A documentação detalhada dos endpoints, estruturas de requisição, exemplos c
 * **Validação**: Jakarta Bean Validation
 * **Produtividade**: Lombok
 * **Containerização**: Docker e Docker Compose
+* **CI/CD**: GitHub Actions
+* **Infraestrutura / Deploy**: Oracle Cloud Infrastructure (OCI - Compute Instance)
 * **Formato de Erros**: RFC 7807 (ProblemDetail)
 
 ---
@@ -39,67 +46,89 @@ src/main/java/com/vicentedev/api_re
 │   └── specification/   # Filtros dinamicos de consulta
 └── service/             # Interfaces e regras de negocio
     └── impl/            # Implementacoes dos servicos e armazenamento local
+
 ```
 
 ---
 
-## Armazenamento de Arquivos e Midia
+## Deploy e Integração Contínua (CI/CD)
 
-A aplicacao possui um servico desacoplado (`FileStorageService`) para armazenamento de imagens fisicamente no disco local:
+O ciclo de vida de entrega contínua do projeto é totalmente automatizado:
 
-* **Diretorio base**: `./uploads/` (com subpastas `/variants/` e `/gallery/`).
+* **Pipelines de CI/CD**: Implementadas via **GitHub Actions**, executando a compilação, validações estáticas e suíte de testes automatizados a cada push ou pull request.
+* **Infraestrutura em Produção**: A aplicação e os serviços correlacionados estão hospedados em uma instância de computação na **Oracle Cloud (OCI)**, executados de forma isolada via contêineres Docker para garantir consistência e estabilidade no ambiente de produção.
+
+---
+
+## Armazenamento de Arquivos e Mídia
+
+A aplicação possui um serviço desacoplado (`FileStorageService`) para armazenamento de imagens fisicamente no disco local:
+
+* **Diretório base**: `./uploads/` (com subpastas `/variants/` e `/gallery/`).
 * **Formatos suportados**: `.jpg`, `.jpeg`, `.png`, `.webp`.
-* **Acesso publico**: A rota `/uploads/**` e servida diretamente pelo Spring Web MVC.
-* **Ciclo de vida e exclusao**: Ao excluir uma variante, foto de galeria ou motocicleta, os arquivos correspondentes sao automaticamente removidos do disco.
+* **Acesso público**: A rota `/uploads/**` é servida diretamente pelo Spring Web MVC.
+* **Ciclo de vida e exclusão**: Ao excluir uma variante, foto de galeria ou motocicleta, os arquivos correspondentes são automaticamente removidos do disco.
 
 ---
 
 ## Como Executar o Projeto
 
-### Pre-requisitos
+### Pré-requisitos
+
 * Java Development Kit (JDK) 21 instalado
 * Docker e Docker Compose instalados
 
-### 1. Clonar o Repositorio
+### 1. Clonar o Repositório
+
 ```bash
 git clone git@github.com:VicenteAlef/api-royal-enfield-spring-boot.git
 cd api-royal-enfield-spring-boot
 git checkout dev
+
 ```
 
 ### 2. Iniciar o Banco de Dados PostgreSQL
-Suba a instancia local do PostgreSQL via Docker Compose:
+
+Suba a instância local do PostgreSQL via Docker Compose:
+
 ```bash
 docker compose up -d
+
 ```
 
 ### 3. Executar os Testes Automatizados
-Valide a integridade do banco de dados, migricoes Flyway e endpoints REST:
+
+Valide a integridade do banco de dados, migrações Flyway e endpoints REST:
+
 ```bash
 ./mvnw test
+
 ```
 
-### 4. Executar a Aplicacao
+### 4. Executar a Aplicação
+
 Inicie o servidor de desenvolvimento:
+
 ```bash
 ./mvnw spring-boot:run
+
 ```
 
-A API estara disponivel em `http://localhost:8080/api/v1`.
+A API estará disponível em `http://localhost:8080/api/v1`.
 
 ---
 
-## Estrategia de Branching (Git Flow)
+## Estratégia de Branching (Git Flow)
 
-* `main`: Codigo de producao e versoes estaveis consolidadas.
-* `dev`: Branch de desenvolvimento ativo e integracao de fases e features.
+* `main`: Código de produção e versões estáveis consolidadas (gatilho de deploy em produção via CI/CD).
+* `dev`: Branch de desenvolvimento ativo e integração contínua de features.
 
 ---
 
 ## Roadmap de Desenvolvimento
 
-* **Fase 1 (Planejamento & Setup)**: Modelagem relacional, Docker Compose, configuracao do PostgreSQL e migracao inicial com Flyway. [Concluida]
-* **Fase 2 (Catalogo, Variantes, Galeria, Ficha Tecnica e Uploads)**: Entidades JPA, DTOs, Mappers, Repositorios com Specification, FileStorageService, controladores REST e testes de integracao. [Concluida]
-* **Fase 3 (Concessionarias e Test Rides)**: CRUD de Concessionarias e fluxo de agendamento de Test Rides. [Proxima Etapa]
-* **Fase 4 (Seguranca e Autenticacao)**: Autenticacao com JWT, controle de perfis (USER/ADMIN) e protecao de rotas. [Pendente]
-* **Fase 5 (Documentacao e Containerizacao)**: Documentacao interativa via OpenAPI 3 / Swagger e Dockerfile multi-stage. [Pendente]
+* **Fase 1 (Planejamento & Setup)**: Modelagem relacional, Docker Compose, configuração do PostgreSQL e migração inicial com Flyway. [Concluída]
+* **Fase 2 (Catálogo, Variantes, Galeria, Ficha Técnica e Uploads)**: Entidades JPA, DTOs, Mappers, Repositórios com Specification, FileStorageService, controladores REST e testes de integração. [Concluída]
+* **Fase 3 (Concessionárias e Test Rides)**: CRUD de Concessionárias e fluxo de agendamento de Test Rides. [Próxima Etapa]
+* **Fase 4 (Segurança e Autenticação)**: Autenticação com JWT, controle de perfis (USER/ADMIN) e proteção de rotas. [Pendente]
+* **Fase 5 (Documentação e Containerização)**: Documentação interativa via OpenAPI 3 / Swagger e Dockerfile multi-stage. [Pendente]
