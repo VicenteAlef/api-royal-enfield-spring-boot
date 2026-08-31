@@ -128,7 +128,7 @@ A API estará disponível em `http://localhost:8080/api/v1`.
 ## Roadmap de Desenvolvimento
 
 * **Fase 1 (Planejamento & Setup)**: Modelagem relacional, Docker Compose, configuração do PostgreSQL e migração inicial com Flyway. [Concluída]
-* **Fase 2 (Catálogo, Variantes, Galeria, Ficha Técnica e Uploads)**: Entidades JPA, DTOs, Mappers, Repositórios com Specification, FileStorageService, controladores REST e testes de integração. [Concluída]
-* **Fase 3 (Concessionárias e Test Rides)**: CRUD de Concessionárias e fluxo de agendamento de Test Rides. [Próxima Etapa]
-* **Fase 4 (Segurança e Autenticação)**: Autenticação com JWT, controle de perfis (USER/ADMIN) e proteção de rotas. [Pendente]
+* **Fase 2 (Catálogo, Variantes, Galeria, Ficha Técnica e Uploads)**: Entidades JPA, DTOs, Mappers, Reposositórios com Specification, FileStorageService, controladores REST e testes de integração. [Concluída]
+* **Fase 3 (Concessionárias e Test Rides)**: CRUD de Concessionárias e fluxo de agendamento de Test Rides com validação de regras de negócio. [Concluída]
+* **Fase 4 (Segurança e Autenticação)**: Autenticação com JWT, controle de perfis (USER/ADMIN) e proteção de rotas. [Próxima Etapa]
 * **Fase 5 (Documentação e Containerização)**: Documentação interativa via OpenAPI 3 / Swagger e Dockerfile multi-stage. [Pendente]

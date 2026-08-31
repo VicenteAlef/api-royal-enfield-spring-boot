@@ -567,6 +567,255 @@ Retorna a lista de itens da galeria ordenada ascendentemente por `displayOrder`.
 
 ---
 
+## 5. Módulo de Concessionárias (/api/v1/dealerships)
+
+### 5.1. Criar Concessionária
+* **Método**: `POST`
+* **Rota**: `/api/v1/dealerships`
+* **Headers**: `Content-Type: application/json`
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "name": "Royal Enfield Moema",
+  "city": "Sao Paulo",
+  "state": "SP",
+  "address": "Av. Ibirapuera, 2907 - Moema",
+  "phone": "(11) 5051-0000",
+  "email": "moema@royalenfield.com.br"
+}
+```
+
+#### Resposta de Sucesso (`201 Created`):
+```json
+{
+  "id": "11111111-2222-3333-4444-555555555555",
+  "name": "Royal Enfield Moema",
+  "city": "Sao Paulo",
+  "state": "SP",
+  "address": "Av. Ibirapuera, 2907 - Moema",
+  "phone": "(11) 5051-0000",
+  "email": "moema@royalenfield.com.br",
+  "createdAt": "2026-08-31T19:30:00.000Z",
+  "updatedAt": "2026-08-31T19:30:00.000Z"
+}
+```
+
+---
+
+### 5.2. Listar Concessionárias (Paginado com Filtros)
+* **Método**: `GET`
+* **Rota**: `/api/v1/dealerships`
+* **Query Parameters (Opcionais)**:
+  * `state` (string): Sigla do estado (ex: `SP`, `RJ`, `MG`).
+  * `city` (string): Nome da cidade.
+  * `query` (string): Busca textual no nome ou endereço.
+  * `page` (int, default: `0`): Índice da página.
+  * `size` (int, default: `10`): Quantidade de itens por página.
+  * `sort` (string, default: `name,asc`): Campo e direção de ordenação.
+
+#### Exemplo de Requisição:
+`GET /api/v1/dealerships?state=SP&city=Sao Paulo`
+
+#### Resposta de Sucesso (`200 OK`):
+```json
+{
+  "content": [
+    {
+      "id": "11111111-2222-3333-4444-555555555555",
+      "name": "Royal Enfield Moema",
+      "city": "Sao Paulo",
+      "state": "SP",
+      "address": "Av. Ibirapuera, 2907 - Moema",
+      "phone": "(11) 5051-0000",
+      "email": "moema@royalenfield.com.br",
+      "createdAt": "2026-08-31T19:30:00.000Z",
+      "updatedAt": "2026-08-31T19:30:00.000Z"
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalElements": 1,
+  "totalPages": 1,
+  "last": true,
+  "size": 10,
+  "number": 0,
+  "first": true,
+  "numberOfElements": 1,
+  "empty": false
+}
+```
+
+---
+
+### 5.3. Obter Concessionária por ID
+* **Método**: `GET`
+* **Rota**: `/api/v1/dealerships/{id}`
+
+#### Resposta de Sucesso (`200 OK`): Retorna `DealershipResponse`.
+
+---
+
+### 5.4. Atualizar Concessionária
+* **Método**: `PUT`
+* **Rota**: `/api/v1/dealerships/{id}`
+* **Headers**: `Content-Type: application/json`
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "name": "Royal Enfield Moema Premium",
+  "city": "Sao Paulo",
+  "state": "SP",
+  "address": "Av. Ibirapuera, 2907 - Moema",
+  "phone": "(11) 5051-9999",
+  "email": "contato.moema@royalenfield.com.br"
+}
+```
+
+#### Resposta de Sucesso (`200 OK`): Retorna `DealershipResponse` atualizado.
+
+---
+
+### 5.5. Excluir Concessionária
+* **Método**: `DELETE`
+* **Rota**: `/api/v1/dealerships/{id}`
+
+#### Resposta de Sucesso (`204 No Content`): Sem corpo.
+
+---
+
+## 6. Módulo de Test Rides (/api/v1/test-rides)
+
+### 6.1. Solicitar Agendamento de Test Ride
+* **Método**: `POST`
+* **Rota**: `/api/v1/test-rides`
+* **Headers**: `Content-Type: application/json`
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "customerName": "Carlos Silva",
+  "customerEmail": "carlos.silva@email.com",
+  "customerPhone": "(11) 98765-4321",
+  "preferredDate": "2026-09-15T14:30:00Z",
+  "motorcycleId": "ad7f150a-516c-49d2-b72c-53d077045994",
+  "variantId": "11111111-2222-3333-4444-555555555555",
+  "dealershipId": "11111111-2222-3333-4444-555555555555"
+}
+```
+> **Nota**: `variantId` é opcional caso o cliente não tenha preferência por uma variante específica.
+
+#### Resposta de Sucesso (`201 Created`):
+```json
+{
+  "id": "99999999-aaaa-bbbb-cccc-dddddddddddd",
+  "customerName": "Carlos Silva",
+  "customerEmail": "carlos.silva@email.com",
+  "customerPhone": "(11) 98765-4321",
+  "preferredDate": "2026-09-15T14:30:00Z",
+  "status": "PENDING",
+  "motorcycle": {
+    "id": "ad7f150a-516c-49d2-b72c-53d077045994",
+    "modelName": "Super Meteor 650",
+    "family": "Cruiser",
+    "engineCc": 648
+  },
+  "variant": {
+    "id": "11111111-2222-3333-4444-555555555555",
+    "variantName": "Astral",
+    "colorName": "Astral Black",
+    "imageUrl": "/uploads/variants/astral-black.webp"
+  },
+  "dealership": {
+    "id": "11111111-2222-3333-4444-555555555555",
+    "name": "Royal Enfield Moema",
+    "city": "Sao Paulo",
+    "state": "SP",
+    "address": "Av. Ibirapuera, 2907 - Moema",
+    "phone": "(11) 5051-0000",
+    "email": "moema@royalenfield.com.br",
+    "createdAt": "2026-08-31T19:30:00.000Z",
+    "updatedAt": "2026-08-31T19:30:00.000Z"
+  },
+  "createdAt": "2026-08-31T19:30:00.000Z",
+  "updatedAt": "2026-08-31T19:30:00.000Z"
+}
+```
+
+---
+
+### 6.2. Listar Test Rides (Paginado com Filtros)
+* **Método**: `GET`
+* **Rota**: `/api/v1/test-rides`
+* **Query Parameters (Opcionais)**:
+  * `dealershipId` (UUID): Filtra por concessionária.
+  * `motorcycleId` (UUID): Filtra por motocicleta.
+  * `status` (string): `PENDING`, `CONFIRMED`, `COMPLETED`, `CANCELLED`.
+  * `customerEmail` (string): Filtra por e-mail do cliente.
+  * `startDate` (ISO DateTime): Início da faixa de agendamento.
+  * `endDate` (ISO DateTime): Fim da faixa de agendamento.
+  * `page` (int, default: `0`): Índice da página.
+  * `size` (int, default: `10`): Quantidade de itens por página.
+  * `sort` (string, default: `preferredDate,asc`): Campo e direção de ordenação.
+
+#### Exemplo de Requisição:
+`GET /api/v1/test-rides?status=PENDING&page=0&size=10`
+
+#### Resposta de Sucesso (`200 OK`): Retorna página de `TestRideResponse`.
+
+---
+
+### 6.3. Obter Test Ride por ID
+* **Método**: `GET`
+* **Rota**: `/api/v1/test-rides/{id}`
+
+#### Resposta de Sucesso (`200 OK`): Retorna `TestRideResponse`.
+
+---
+
+### 6.4. Atualizar Status do Test Ride
+* **Método**: `PATCH`
+* **Rota**: `/api/v1/test-rides/{id}/status`
+* **Headers**: `Content-Type: application/json`
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "status": "CONFIRMED"
+}
+```
+
+#### Resposta de Sucesso (`200 OK`): Retorna `TestRideResponse` com o novo status.
+
+---
+
+### 6.5. Cancelar Test Ride
+* **Método**: `PATCH`
+* **Rota**: `/api/v1/test-rides/{id}/cancel`
+
+#### Resposta de Sucesso (`200 OK`): Retorna `TestRideResponse` com status `CANCELLED`.
+
+---
+
+### 6.6. Excluir Test Ride
+* **Método**: `DELETE`
+* **Rota**: `/api/v1/test-rides/{id}`
+
+#### Resposta de Sucesso (`204 No Content`): Sem corpo.
+
+---
+
 ## Exemplos Rápidos com cURL
 
 ### 1. Criar Moto com Ficha Técnica:
@@ -598,7 +847,31 @@ curl -X POST http://localhost:8080/api/v1/motorcycles/{motorcycleId}/gallery \
   -F "displayOrder=1"
 ```
 
-### 3. Listar com Filtro e Paginação:
+### 3. Cadastrar Concessionária:
 ```bash
-curl -X GET "http://localhost:8080/api/v1/motorcycles?family=Classic&active=true&page=0&size=5"
+curl -X POST http://localhost:8080/api/v1/dealerships \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Royal Enfield Moema",
+    "city": "Sao Paulo",
+    "state": "SP",
+    "address": "Av. Ibirapuera, 2907 - Moema",
+    "phone": "(11) 5051-0000",
+    "email": "moema@royalenfield.com.br"
+  }'
 ```
+
+### 4. Agendar Test Ride:
+```bash
+curl -X POST http://localhost:8080/api/v1/test-rides \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerName": "Carlos Silva",
+    "customerEmail": "carlos.silva@email.com",
+    "customerPhone": "(11) 98765-4321",
+    "preferredDate": "2026-09-15T14:30:00Z",
+    "motorcycleId": "ad7f150a-516c-49d2-b72c-53d077045994",
+    "dealershipId": "11111111-2222-3333-4444-555555555555"
+  }'
+```
+
