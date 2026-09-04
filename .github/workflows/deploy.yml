@@ -62,8 +62,8 @@ jobs:
             # Puxa a nova imagem
             docker compose pull
             
-            # Sobe os containers atualizados
-            docker compose up -d
+            # Sobe os containers atualizados forçando recriação
+            docker compose up -d --force-recreate
             
             # Limpa imagens antigas para economizar espaço
             docker image prune -f
