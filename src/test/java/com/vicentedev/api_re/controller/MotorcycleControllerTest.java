@@ -43,8 +43,12 @@ public class MotorcycleControllerTest {
     @Autowired
     private MotorcycleRepository motorcycleRepository;
 
+    @Autowired
+    private com.vicentedev.api_re.repository.TestRideRepository testRideRepository;
+
     @BeforeEach
     void setUp() {
+        testRideRepository.deleteAll();
         motorcycleRepository.deleteAll();
     }
 

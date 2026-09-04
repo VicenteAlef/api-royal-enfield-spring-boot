@@ -25,7 +25,7 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "webp");
     private final Path rootLocation;
 
-    public LocalFileStorageServiceImpl(@Value("${file.upload-dir:./uploads}") String uploadDir) {
+    public LocalFileStorageServiceImpl(@Value("${file.upload-dir}") String uploadDir) {
         this.rootLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.rootLocation);

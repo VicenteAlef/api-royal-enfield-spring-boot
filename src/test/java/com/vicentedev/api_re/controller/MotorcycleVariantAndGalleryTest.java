@@ -52,10 +52,14 @@ public class MotorcycleVariantAndGalleryTest {
     @Autowired
     private MotorcycleGalleryRepository galleryRepository;
 
+    @Autowired
+    private com.vicentedev.api_re.repository.TestRideRepository testRideRepository;
+
     private UUID motorcycleId;
 
     @BeforeEach
     void setUp() throws Exception {
+        testRideRepository.deleteAll();
         galleryRepository.deleteAll();
         variantRepository.deleteAll();
         motorcycleRepository.deleteAll();
