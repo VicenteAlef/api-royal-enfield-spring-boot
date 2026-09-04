@@ -816,11 +816,167 @@ Retorna a lista de itens da galeria ordenada ascendentemente por `displayOrder`.
 
 ---
 
+## 7. Módulo de Autenticação e 2FA (/api/v1/auth)
+
+### 7.1. Registro Público de Usuário
+* **Método**: `POST`
+* **Rota**: `/api/v1/auth/register`
+* **Headers**: `Content-Type: application/json`
+
+> **Nota**: Novos cadastros recebem automaticamente o perfil `ROLE_VISITOR`. Um e-mail informativo é disparado de forma assíncrona para a caixa postal do Administrador.
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "name": "Recrutador Tech",
+  "email": "recrutador@empresa.com",
+  "password": "senhaSegura123"
+}
+```
+
+#### Resposta de Sucesso (`201 Created`):
+```json
+{
+  "id": "33333333-4444-5555-6666-777777777777",
+  "name": "Recrutador Tech",
+  "email": "recrutador@empresa.com",
+  "role": "ROLE_VISITOR",
+  "lastLoginAt": null,
+  "createdAt": "2026-09-04T08:50:00.000Z",
+  "updatedAt": "2026-09-04T08:50:00.000Z"
+}
+```
+
+---
+
+### 7.2. Iniciar Login (Passo 1 do 2FA)
+* **Método**: `POST`
+* **Rota**: `/api/v1/auth/login`
+* **Headers**: `Content-Type: application/json`
+
+> **Nota**: Valida o e-mail e a senha do usuário. Se corretos, gera um código de 6 dígitos com validade de 10 minutos e envia para o e-mail cadastrado.
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "email": "recrutador@empresa.com",
+  "password": "senhaSegura123"
+}
+```
+
+#### Resposta de Sucesso (`200 OK`):
+```json
+{
+  "requires2FA": true,
+  "email": "recrutador@empresa.com",
+  "message": "Codigo de autenticacao enviado para o seu e-mail"
+}
+```
+
+---
+
+### 7.3. Confirmar Código 2FA e Obter Token JWT (Passo 2 do 2FA)
+* **Método**: `POST`
+* **Rota**: `/api/v1/auth/verify-2fa`
+* **Headers**: `Content-Type: application/json`
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "email": "recrutador@empresa.com",
+  "code": "849201"
+}
+```
+
+#### Resposta de Sucesso (`200 OK`):
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 86400000,
+  "user": {
+    "id": "33333333-4444-5555-6666-777777777777",
+    "name": "Recrutador Tech",
+    "email": "recrutador@empresa.com",
+    "role": "ROLE_VISITOR",
+    "lastLoginAt": "2026-09-04T08:52:00.000Z",
+    "createdAt": "2026-09-04T08:50:00.000Z",
+    "updatedAt": "2026-09-04T08:52:00.000Z"
+  }
+}
+```
+
+---
+
+### 7.4. Consultar Usuário Logado
+* **Método**: `GET`
+* **Rota**: `/api/v1/auth/me`
+* **Headers**: `Authorization: Bearer <token>`
+
+#### Resposta de Sucesso (`200 OK`): Retorna `UserResponse`.
+
+---
+
+## 8. Módulo de Gestão de Usuários (/api/v1/users)
+
+> **Restrição de Acesso**: Todos os endpoints deste módulo exigem o perfil **`ROLE_ADMIN`**.
+
+### 8.1. Listar Usuários (Paginado com Filtros)
+* **Método**: `GET`
+* **Rota**: `/api/v1/users`
+* **Headers**: `Authorization: Bearer <admin_token>`
+* **Query Parameters (Opcionais)**:
+  * `neverAccessed` (boolean): `true` para filtrar apenas usuários que nunca realizaram login/2FA (`lastLoginAt` nulo).
+  * `role` (string): `ROLE_VISITOR`, `ROLE_USER`, `ROLE_ADMIN`.
+  * `query` (string): Busca textual por nome ou e-mail.
+  * `page` (int, default: `0`): Índice da página.
+  * `size` (int, default: `10`): Quantidade por página.
+  * `sort` (string, default: `createdAt,desc`): Campo e direção de ordenação.
+
+#### Resposta de Sucesso (`200 OK`): Retorna página de `UserResponse`.
+
+---
+
+### 8.2. Obter Usuário por ID
+* **Método**: `GET`
+* **Rota**: `/api/v1/users/{id}`
+* **Headers**: `Authorization: Bearer <admin_token>`
+
+#### Resposta de Sucesso (`200 OK`): Retorna `UserResponse`.
+
+---
+
+### 8.3. Alterar Papel (Role) do Usuário
+* **Método**: `PATCH`
+* **Rota**: `/api/v1/users/{id}/role`
+* **Headers**: `Content-Type: application/json`, `Authorization: Bearer <admin_token>`
+
+#### Payload de Envio (Request Body):
+```json
+{
+  "role": "ROLE_USER"
+}
+```
+
+#### Resposta de Sucesso (`200 OK`): Retorna `UserResponse` com o novo perfil atualizado.
+
+---
+
+### 8.4. Excluir Usuário
+* **Método**: `DELETE`
+* **Rota**: `/api/v1/users/{id}`
+* **Headers**: `Authorization: Bearer <admin_token>`
+
+#### Resposta de Sucesso (`204 No Content`): Sem corpo.
+
+---
+
 ## Exemplos Rápidos com cURL
 
 ### 1. Criar Moto com Ficha Técnica:
 ```bash
 curl -X POST http://localhost:8080/api/v1/motorcycles \
+  -H "Authorization: Bearer <admin_ou_user_token>" \
   -H "Content-Type: application/json" \
   -d '{
     "modelName": "Classic 350",
@@ -839,39 +995,45 @@ curl -X POST http://localhost:8080/api/v1/motorcycles \
   }'
 ```
 
-### 2. Upload de Imagem para Galeria:
+### 2. Auto-Cadastro no Painel:
 ```bash
-curl -X POST http://localhost:8080/api/v1/motorcycles/{motorcycleId}/gallery \
-  -F "file=@/caminho/para/foto.jpg" \
-  -F "caption=Vista Lateral" \
-  -F "displayOrder=1"
-```
-
-### 3. Cadastrar Concessionária:
-```bash
-curl -X POST http://localhost:8080/api/v1/dealerships \
+curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Royal Enfield Moema",
-    "city": "Sao Paulo",
-    "state": "SP",
-    "address": "Av. Ibirapuera, 2907 - Moema",
-    "phone": "(11) 5051-0000",
-    "email": "moema@royalenfield.com.br"
+    "name": "Recrutador Tech",
+    "email": "recrutador@empresa.com",
+    "password": "senhaSegura123"
   }'
 ```
 
-### 4. Agendar Test Ride:
+### 3. Iniciar Login (2FA):
 ```bash
-curl -X POST http://localhost:8080/api/v1/test-rides \
+curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "customerName": "Carlos Silva",
-    "customerEmail": "carlos.silva@email.com",
-    "customerPhone": "(11) 98765-4321",
-    "preferredDate": "2026-09-15T14:30:00Z",
-    "motorcycleId": "ad7f150a-516c-49d2-b72c-53d077045994",
-    "dealershipId": "11111111-2222-3333-4444-555555555555"
+    "email": "recrutador@empresa.com",
+    "password": "senhaSegura123"
   }'
 ```
+
+### 4. Validar Código 2FA e Obter JWT:
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/verify-2fa \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "recrutador@empresa.com",
+    "code": "123456"
+  }'
+```
+
+### 5. Promover Visitante para Operador (Admin):
+```bash
+curl -X PATCH http://localhost:8080/api/v1/users/{userId}/role \
+  -H "Authorization: Bearer <admin_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "role": "ROLE_USER"
+  }'
+```
+
 

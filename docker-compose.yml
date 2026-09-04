@@ -3,32 +3,30 @@ services:
     image: postgres:16-alpine
     container_name: api-re-postgres
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: ${DB_NAME:-royal_enfield_db}
-      POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - api-network
 
   api-re:
+    build: .
     image: ghcr.io/vicentealef/api-royal-enfield-spring-boot:latest
     container_name: api-re-app
     restart: always
-    ports:
-      - "${API_PORT:-3001}:8080"
+    env_file:
+      - .env
     environment:
       - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-royal_enfield_db}
-      - DB_USERNAME=${DB_USERNAME:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - SECURITY_ADMIN_USERNAME=${SECURITY_ADMIN_USERNAME}
-      - SECURITY_ADMIN_PASSWORD=${SECURITY_ADMIN_PASSWORD}
-      - FILE_UPLOAD_DIR=/app/uploads
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
     volumes:
       - ./uploads:/app/uploads
     depends_on:
