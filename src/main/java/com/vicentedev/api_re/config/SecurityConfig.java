@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/dealerships/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/test-rides").permitAll()
                         .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/error").permitAll()
 
                         // Visualizacao de Test Rides e Perfil no Painel (ROLE_VISITOR, ROLE_USER, ROLE_ADMIN)
